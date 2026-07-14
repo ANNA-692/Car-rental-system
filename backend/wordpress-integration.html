@@ -1,0 +1,130 @@
+<div id="mollash-cars-section" style="max-width:1200px;margin:0 auto;padding:20px;">
+  <h2 style="text-align:center;margin-bottom:1.5rem;">Our Available Cars</h2>
+  <div id="mollash-cars-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;">
+    <p style="text-align:center;color:#666;grid-column:1/-1;">Loading cars...</p>
+  </div>
+</div>
+
+<style>
+  .mollash-car-item {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .mollash-car-item:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  }
+  .mollash-car-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+  }
+  .mollash-car-overlay {
+    position: relative;
+  }
+  .mollash-car-price {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: #1a5653;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+  .mollash-car-price small {
+    font-size: 0.7rem;
+    font-weight: 400;
+    opacity: 0.85;
+  }
+  .mollash-car-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #c0392b;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .mollash-car-info {
+    padding: 12px 14px 14px;
+  }
+  .mollash-car-info h3 {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .mollash-car-info p {
+    margin: 2px 0;
+    font-size: 0.82rem;
+    color: #666;
+  }
+  .mollash-car-book {
+    display: inline-block;
+    margin-top: 10px;
+    background: #1a5653;
+    color: #fff;
+    padding: 7px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: background 0.2s;
+  }
+  .mollash-car-book:hover {
+    background: #0f3d3b;
+  }
+</style>
+
+<script>
+(function() {
+  var API_BASE = "https://YOUR_BACKEND_URL/api/public";
+
+  function fetchCars() {
+    fetch(API_BASE + "/cars?limit=20")
+      .then(function(res) { return res.json(); })
+      .then(function(result) {
+        var cars = result.data;
+        var grid = document.getElementById("mollash-cars-grid");
+        if (!cars || cars.length === 0) {
+          grid.innerHTML = '<p style="text-align:center;color:#666;grid-column:1/-1;">No cars available at the moment.</p>';
+          return;
+        }
+        grid.innerHTML = cars.map(function(car) {
+          var img = car.imageUrl || "https://via.placeholder.com/600x400?text=" + encodeURIComponent(car.make + " " + car.model);
+          return '<a class="mollash-car-item" href="https://mollashinvestments.africa/contact-us/">' +
+            '<div class="mollash-car-overlay">' +
+              '<img class="mollash-car-img" src="' + img + '" alt="' + car.make + " " + car.model + '" loading="lazy" />' +
+              '<div class="mollash-car-price">$' + car.pricePerDay + '<small>/day</small></div>' +
+              (car.isAvailable === false ? '<div class="mollash-car-tag">BOOKED</div>' : '') +
+            '</div>' +
+            '<div class="mollash-car-info">' +
+              '<h3>' + car.make + " " + car.model + " " + car.year + '</h3>' +
+              '<p>' + car.category + ' &middot; ' + car.transmission + ' &middot; ' + car.seats + ' seats</p>' +
+              '<p>' + car.fuelType + ' &middot; ' + car.location + '</p>' +
+              '<span class="mollash-car-book">Book Now</span>' +
+            '</div>' +
+          '</a>';
+        }).join("");
+      })
+      .catch(function(err) {
+        document.getElementById("mollash-cars-grid").innerHTML = '<p style="text-align:center;color:#c00;grid-column:1/-1;">Unable to load cars. Please try again later.</p>';
+        console.error("Mollash Cars API error:", err);
+      });
+  }
+
+  fetchCars();
+})();
+</script>

@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  passwordHash   String
+  firstName      String
+  lastName       String
+  phone          String?
+  address        String?
+  driverLicense  String?
+  invoiceImage   String?
+  companyId      String?  @unique
+  role           String   @default("CUSTOMER")
+  isVerified     Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  refreshToken   String?
+  resetToken     String?
+  resetTokenExp  DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  bookings        Booking[]
+  payments        Payment[]
+  reviews         Review[]
+  auditLogs       AuditLog[]
+  conditionImages CarConditionImage[]
+  damageReports   DamageReport[]
+}
+
+model Car {
+  id           String   @id @default(uuid())
+  make         String
+  model        String
+  year         Int
+  color        String?
+  licensePlate String   @unique
+  vin          String   @unique
+  category     String
+  transmission String
+  fuelType     String
+  seats        Int
+  pricePerDay  Float
+  pricePerHour Float?
+  deposit      Float    @default(0)
+  mileage      Int?
+  fuelLevel    Float?
+  location     String
+  description    String?
+  features       String?
+  imageUrl       String?
+  conditionNotes String?
+  isAvailable    Boolean  @default(true)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  bookings        Booking[]
+  reviews         Review[]
+  maintenanceLogs MaintenanceLog[]
+  conditionImages CarConditionImage[]
+  damageReports   DamageReport[]
+}
+
+model Booking {
+  id              String   @id @default(uuid())
+  userId          String
+  carId           String
+  startDate       DateTime
+  endDate         DateTime
+  pickupLocation  String?
+  dropoffLocation String?
+  status          String   @default("PENDING")
+  totalAmount     Float
+  depositPaid     Boolean  @default(false)
+  mileageOut      Int?
+  mileageIn       Int?
+  fuelAtPickup    Float?
+  fuelAtDropoff   Float?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id])
+  car     Car     @relation(fields: [carId], references: [id])
+  payment Payment?
+  review  Review?
+
+  @@index([userId])
+  @@index([carId])
+  @@index([status])
+}
+
+model Payment {
+  id            String   @id @default(uuid())
+  bookingId     String   @unique
+  userId        String
+  amount        Float
+  method        String
+  status        String   @default("PENDING")
+  transactionId String?
+  paidAt        DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@index([bookingId])
+  @@index([userId])
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  carId     String
+  bookingId String   @unique
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id])
+  car     Car     @relation(fields: [carId], references: [id])
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@index([userId])
+  @@index([carId])
+}
+
+model MaintenanceLog {
+  id            String   @id @default(uuid())
+  carId         String
+  description   String
+  type          String
+  cost          Float
+  invoiceImage  String?
+  status        String   @default("PENDING")
+  scheduledAt   DateTime?
+  completedAt   DateTime?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  car Car @relation(fields: [carId], references: [id])
+
+  @@index([carId])
+  @@index([status])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String?
+  details   String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entity])
+  @@index([createdAt])
+}
+
+model CarConditionImage {
+  id         String   @id @default(uuid())
+  carId      String
+  uploadedBy String
+  imageUrl   String
+  label      String?
+  createdAt  DateTime @default(now())
+
+  car           Car                @relation(fields: [carId], references: [id])
+  uploader      User               @relation(fields: [uploadedBy], references: [id])
+  baselineFor   DamageReport[]     @relation("BaselineImage")
+  comparisonFor DamageReport[]     @relation("ComparisonImage")
+
+  @@index([carId])
+}
+
+model DamageReport {
+  id                String    @id @default(uuid())
+  carId             String
+  baselineImageId   String
+  comparisonImageId String
+  diffImageUrl      String?
+  damagePercent     Float?
+  damageAreas       Int?
+  status            String    @default("PENDING")
+  notes             String?
+  createdAt         DateTime  @default(now())
+  reviewedAt        DateTime?
+  reviewedBy        String?
+
+  car             Car                @relation(fields: [carId], references: [id])
+  baselineImage   CarConditionImage  @relation("BaselineImage", fields: [baselineImageId], references: [id])
+  comparisonImage CarConditionImage  @relation("ComparisonImage", fields: [comparisonImageId], references: [id])
+  reviewer        User?              @relation(fields: [reviewedBy], references: [id])
+
+  @@index([carId])
+}

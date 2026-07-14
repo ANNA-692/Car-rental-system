@@ -1,0 +1,8 @@
+node_modules
+.git
+.env
+frontend
+backend.err
+backend.err.log
+backend.log
+*.md
