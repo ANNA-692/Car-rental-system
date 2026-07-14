@@ -77,7 +77,23 @@ Thumbs.db
 dist/
 build/
 
+# Uploads
+uploads/
+
+# Runtime logs
+*.log
+stdout.log
+stderr.log
+backend.err
+backend.err.log
+
+# Test artifacts
+test_token.txt
+
 # Python virtual environment
 venv/
 __pycache__/
 *.pyc
+
+# Environment
+.env.local
