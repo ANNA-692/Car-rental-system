@@ -74,7 +74,7 @@ export async function getDetailedCarTracking() {
           type: true,
           description: true,
           cost: true,
-          scheduledDate: true,
+          scheduledAt: true,
         },
         take: 3,
       });

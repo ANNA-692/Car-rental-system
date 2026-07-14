@@ -42,7 +42,7 @@ app.use("/api/public", publicRoutes);
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 35,
+  max: 100,
   standardHeaders: true,
   legacyHeaders: false,
   message: { status: "error", message: "Too many requests, please try again later" },

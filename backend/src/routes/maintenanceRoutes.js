@@ -20,10 +20,6 @@ router.post(
     body("description").notEmpty().withMessage("Description required"),
     body("type").notEmpty().withMessage("Type required"),
     body("cost").isFloat({ min: 0 }).withMessage("Cost must be positive"),
-    body("invoiceImage").custom((_, { req }) => {
-      if (!req.file) throw new Error("Invoice image is required");
-      return true;
-    }),
   ]),
   maintenanceController.createMaintenance
 );

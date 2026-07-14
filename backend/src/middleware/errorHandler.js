@@ -15,6 +15,30 @@ export function errorHandler(err, _req, res, _next) {
     return;
   }
 
+  if (err.code === "LIMIT_FILE_SIZE") {
+    res.status(400).json({
+      status: "error",
+      message: "File too large. Maximum size is 10MB.",
+    });
+    return;
+  }
+
+  if (err.code === "LIMIT_UNEXPECTED_FILE") {
+    res.status(400).json({
+      status: "error",
+      message: "Unexpected file field.",
+    });
+    return;
+  }
+
+  if (err.message && err.message.includes("Only JPEG, PNG, and WebP")) {
+    res.status(400).json({
+      status: "error",
+      message: err.message,
+    });
+    return;
+  }
+
   console.error("Unhandled error:", err);
   res.status(500).json({
     status: "error",

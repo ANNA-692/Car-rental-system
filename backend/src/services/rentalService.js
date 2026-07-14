@@ -1,4 +1,5 @@
 import prisma from "../config/database.js";
+import { AppError } from "../middleware/errorHandler.js";
 import { parsePagination } from "../utils/helpers.js";
 
 export async function listRentals(query) {

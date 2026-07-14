@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id             String   @id @default(uuid())
+  id             String   @id @default(uuid()) @map("_id")
   email          String   @unique
   passwordHash   String
   firstName      String
@@ -17,7 +17,7 @@ model User {
   address        String?
   driverLicense  String?
   invoiceImage   String?
-  companyId      String?  @unique
+  companyId      String?
   role           String   @default("CUSTOMER")
   isVerified     Boolean  @default(false)
   isActive       Boolean  @default(true)
@@ -36,23 +36,23 @@ model User {
 }
 
 model Car {
-  id           String   @id @default(uuid())
-  make         String
-  model        String
-  year         Int
-  color        String?
-  licensePlate String   @unique
-  vin          String   @unique
-  category     String
-  transmission String
-  fuelType     String
-  seats        Int
-  pricePerDay  Float
-  pricePerHour Float?
-  deposit      Float    @default(0)
-  mileage      Int?
-  fuelLevel    Float?
-  location     String
+  id             String   @id @default(uuid()) @map("_id")
+  make           String
+  model          String
+  year           Int
+  color          String?
+  licensePlate   String   @unique
+  vin            String   @unique
+  category       String
+  transmission   String
+  fuelType       String
+  seats          Int
+  pricePerDay    Float
+  pricePerHour   Float?
+  deposit        Float    @default(0)
+  mileage        Int?
+  fuelLevel      Float?
+  location       String
   description    String?
   features       String?
   imageUrl       String?
@@ -60,7 +60,7 @@ model Car {
   isAvailable    Boolean  @default(true)
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  updatedAt      DateTime @updatedAt
 
   bookings        Booking[]
   reviews         Review[]
@@ -70,7 +70,7 @@ model Car {
 }
 
 model Booking {
-  id              String   @id @default(uuid())
+  id              String   @id @default(uuid()) @map("_id")
   userId          String
   carId           String
   startDate       DateTime
@@ -99,7 +99,7 @@ model Booking {
 }
 
 model Payment {
-  id            String   @id @default(uuid())
+  id            String   @id @default(uuid()) @map("_id")
   bookingId     String   @unique
   userId        String
   amount        Float
@@ -113,12 +113,11 @@ model Payment {
   booking Booking @relation(fields: [bookingId], references: [id])
   user    User    @relation(fields: [userId], references: [id])
 
-  @@index([bookingId])
   @@index([userId])
 }
 
 model Review {
-  id        String   @id @default(uuid())
+  id        String   @id @default(uuid()) @map("_id")
   userId    String
   carId     String
   bookingId String   @unique
@@ -136,7 +135,7 @@ model Review {
 }
 
 model MaintenanceLog {
-  id            String   @id @default(uuid())
+  id            String   @id @default(uuid()) @map("_id")
   carId         String
   description   String
   type          String
@@ -156,7 +155,7 @@ model MaintenanceLog {
 }
 
 model AuditLog {
-  id        String   @id @default(uuid())
+  id        String   @id @default(uuid()) @map("_id")
   userId    String
   action    String
   entity    String
@@ -172,7 +171,7 @@ model AuditLog {
 }
 
 model CarConditionImage {
-  id         String   @id @default(uuid())
+  id         String   @id @default(uuid()) @map("_id")
   carId      String
   uploadedBy String
   imageUrl   String
@@ -188,16 +187,16 @@ model CarConditionImage {
 }
 
 model DamageReport {
-  id                String    @id @default(uuid())
+  id                String   @id @default(uuid()) @map("_id")
   carId             String
   baselineImageId   String
   comparisonImageId String
   diffImageUrl      String?
   damagePercent     Float?
   damageAreas       Int?
-  status            String    @default("PENDING")
+  status            String   @default("PENDING")
   notes             String?
-  createdAt         DateTime  @default(now())
+  createdAt         DateTime @default(now())
   reviewedAt        DateTime?
   reviewedBy        String?
 
